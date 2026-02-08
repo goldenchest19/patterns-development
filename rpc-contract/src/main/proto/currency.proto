@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package example.rpc.v1;
+
+option java_multiple_files = true;
+option java_package = "com.example.rpc.v1";
+option java_outer_classname = "CurrencyProto";
+
+service CurrencyRateService {
+  rpc GetRate (RateRequest) returns (RateReply);
+}
+
+message RateRequest {
+  string base_currency = 1;
+  string quote_currency = 2;
+}
+
+message RateReply {
+  string pair = 1;
+  double rate = 2;
+  int64 timestamp_epoch_millis = 3;
+}
