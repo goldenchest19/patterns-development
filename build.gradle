@@ -1,0 +1,18 @@
+allprojects {
+    group = "com.example"
+    version = "0.1.0-SNAPSHOT"
+}
+
+subprojects {
+    plugins.withId("java") {
+        java {
+            toolchain {
+                languageVersion = JavaLanguageVersion.of(21)
+            }
+        }
+    }
+
+    tasks.withType(Test).configureEach {
+        useJUnitPlatform()
+    }
+}

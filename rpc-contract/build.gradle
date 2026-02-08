@@ -1,0 +1,37 @@
+plugins {
+    id "java-library"
+    alias(libs.plugins.protobuf)
+}
+
+java {
+    withSourcesJar()
+}
+
+dependencies {
+    api platform(libs.grpc.bom)
+    api libs.grpc.stub
+    api libs.grpc.protobuf
+    api libs.protobuf.java
+    api libs.javax.annotation
+
+    testImplementation platform(libs.junit.bom)
+    testImplementation libs.junit.jupiter
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${libs.versions.protobuf.get()}"
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${libs.versions.grpc.get()}"
+        }
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.plugins {
+                grpc {}
+            }
+        }
+    }
+}
