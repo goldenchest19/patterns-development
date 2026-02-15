@@ -1,0 +1,8 @@
+services:
+  zookeeper:
+    image: zookeeper:3.9
+    container_name: pdris-zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOO_4LW_COMMANDS_WHITELIST: srvr,ruok,stat,conf,isro
