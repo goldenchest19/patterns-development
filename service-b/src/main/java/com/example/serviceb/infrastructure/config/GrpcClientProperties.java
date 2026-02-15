@@ -6,16 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "grpc.client")
 public class GrpcClientProperties {
-    private String target = "localhost:50051";
     private long deadlineMillis = 3000;
-
-    public String getTarget() {
-        return target;
-    }
-
-    public void setTarget(String target) {
-        this.target = target;
-    }
 
     public long getDeadlineMillis() {
         return deadlineMillis;
