@@ -1,7 +1,6 @@
 plugins {
     id "org.springframework.boot" version "3.2.5"
     id "io.spring.dependency-management" version "1.1.4"
-    id "au.com.dius.pact" version "4.6.15"
     id "java"
 }
 
@@ -30,11 +29,11 @@ dependencies {
 
     testImplementation platform(libs.junit.bom)
     testImplementation libs.junit.jupiter
-    testImplementation "au.com.dius.pact.consumer:junit5:4.6.15"
+    testImplementation "au.com.dius.pact.provider:junit5:4.6.15"
 }
 
 bootJar {
-    mainClass = "com.example.serviceb.ServiceBApplication"
+    mainClass = "com.example.servicea.ServiceAApplication"
 }
 
 springBoot {
@@ -53,18 +52,19 @@ bootRun {
 }
 
 test {
-    systemProperty "pact.rootDir", "${buildDir}/pacts"
+    systemProperty "pactbroker.url", System.getProperty("pactbroker.url", "http://localhost:9292")
+    systemProperty "pact.verifier.publishResults", System.getProperty("pact.verifier.publishResults", "true")
+    systemProperty "pact.provider.version", project.version.toString()
 }
 
-pact {
-    publish {
-        pactDirectory = "${buildDir}/pacts"
-        pactBrokerUrl = System.getProperty("pactbroker.url", "http://localhost:9292")
-        version = project.version.toString()
-        tags = [System.getProperty("pact.consumer.tag", "dev")]
+tasks.register("pactVerifyFromBroker", Test) {
+    group = "verification"
+    description = "Verifies rate-provider contracts from Pact Broker"
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching("com.example.servicea.contract.RateProviderPactVerificationTest")
     }
-}
-
-tasks.named("pactPublish") {
-    dependsOn test
+    systemProperty "pactbroker.url", System.getProperty("pactbroker.url", "http://localhost:9292")
+    systemProperty "pact.verifier.publishResults", System.getProperty("pact.verifier.publishResults", "true")
+    systemProperty "pact.provider.version", project.version.toString()
 }
