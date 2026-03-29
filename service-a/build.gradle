@@ -20,8 +20,6 @@ dependencies {
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation "org.springframework.boot:spring-boot-starter-web"
-
-    implementation 'io.micrometer:micrometer-core:1.16.3'
     implementation "io.micrometer:micrometer-registry-prometheus"
 
     implementation project(":rpc-contract")
@@ -38,11 +36,16 @@ bootJar {
     mainClass = "com.example.servicea.ServiceAApplication"
 }
 
+springBoot {
+    buildInfo()
+}
+
 bootRun {
     doFirst {
         def forwarded = System.properties.findAll { key, value ->
             def k = key.toString()
             k.startsWith("grpc.") || k.startsWith("rate.") || k.startsWith("spring.")
+                    || k.startsWith("management.") || k.startsWith("server.")
         }
         systemProperties(forwarded)
     }

@@ -4,8 +4,12 @@ services:
     container_name: pdris-zookeeper
     ports:
       - "2181:2181"
+      - "7001:7001"
     environment:
       ZOO_4LW_COMMANDS_WHITELIST: srvr,ruok,stat,conf,isro
+      JVMFLAGS: >-
+        -Dzookeeper.prometheusMetricsProvider.className=org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider
+        -Dzookeeper.prometheusMetricsProvider.httpPort=7001
 
   pact-broker-db:
     image: postgres:16
@@ -38,3 +42,25 @@ services:
       PACT_BROKER_DATABASE_USERNAME: pact
       PACT_BROKER_DATABASE_PASSWORD: pact
       PACT_BROKER_LOG_LEVEL: INFO
+
+  prometheus:
+    image: prom/prometheus:v2.53.3
+    container_name: pdris-prometheus
+    ports:
+      - "9090:9090"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: pdris-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro

@@ -2,6 +2,7 @@ package com.example.servicea.infrastructure.grpc;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.grpc.ServerInterceptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.zookeeper.discovery.ZookeeperDiscoveryProperties;
@@ -38,6 +39,7 @@ public class GrpcServerLifecycle implements SmartLifecycle {
     public GrpcServerLifecycle(
             GrpcServerProperties properties,
             GrpcCurrencyRateService service,
+            GrpcServerMetricsInterceptor metricsInterceptor,
             ZookeeperServiceRegistry serviceRegistry,
             ZookeeperDiscoveryProperties discoveryProperties,
             Environment environment
@@ -47,7 +49,7 @@ public class GrpcServerLifecycle implements SmartLifecycle {
         this.discoveryProperties = discoveryProperties;
         this.environment = environment;
         this.server = ServerBuilder.forPort(properties.getPort())
-                .addService(service)
+                .addService(ServerInterceptors.intercept(service, metricsInterceptor))
                 .build();
     }
 
