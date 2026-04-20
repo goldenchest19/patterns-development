@@ -129,13 +129,15 @@ public class GrpcRateClient implements RateClient {
 
     @PreDestroy
     public void shutdown() throws InterruptedException {
+        LOGGER.info("Shutting down {} gRPC channel(s), timeout={}", channels.size(), properties.getShutdownGracePeriod());
         for (ManagedChannel channel : channels.values()) {
             channel.shutdown();
         }
         for (ManagedChannel channel : channels.values()) {
-            if (!channel.awaitTermination(5, TimeUnit.SECONDS)) {
+            if (!channel.awaitTermination(properties.getShutdownGracePeriod().toMillis(), TimeUnit.MILLISECONDS)) {
                 channel.shutdownNow();
             }
         }
+        LOGGER.info("gRPC channels stopped");
     }
 }
