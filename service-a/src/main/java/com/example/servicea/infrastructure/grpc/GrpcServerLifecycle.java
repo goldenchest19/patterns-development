@@ -71,12 +71,14 @@ public class GrpcServerLifecycle implements SmartLifecycle {
 
     @Override
     public void stop() {
+        LOGGER.info("Stopping gRPC server gracefully, timeout={}", properties.getShutdownGracePeriod());
         if (registration != null) {
             serviceRegistry.deregister(registration);
         }
         server.shutdown();
         try {
-            if (!server.awaitTermination(5, TimeUnit.SECONDS)) {
+            if (!server.awaitTermination(properties.getShutdownGracePeriod().toMillis(), TimeUnit.MILLISECONDS)) {
+                LOGGER.warn("gRPC server did not stop gracefully in {}, forcing shutdown", properties.getShutdownGracePeriod());
                 server.shutdownNow();
             }
         } catch (InterruptedException ex) {
@@ -84,6 +86,7 @@ public class GrpcServerLifecycle implements SmartLifecycle {
             server.shutdownNow();
         }
         running = false;
+        LOGGER.info("gRPC server stopped");
     }
 
     private void awaitTermination() {

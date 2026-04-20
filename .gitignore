@@ -29,6 +29,7 @@ Thumbs.db
 # Env files
 .env
 .env.*
+.release.env
 
 # Local config
 *.local
